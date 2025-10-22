@@ -10,7 +10,7 @@ def ra_windstrcurl(lat, lon, u, v):
 
     Usage
     ----------
-    WSC_cal = ra_windstrcurl(lat,lon,u,v)
+    curlZ = ra_windstrcurl(lat,lon,u,v)
     
     Parameters
     ----------
