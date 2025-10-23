@@ -3,12 +3,13 @@
 This repository provides Python implementations for calculating **wind stress** and **wind stress curl**, offering an accessible alternative to existing MATLAB and FORTRAN scripts.  
 Building upon **Ramkrushn Patel’s MATLAB code**, this version refines the **drag coefficient** for high wind speeds and corrects several minor issues to improve accuracy and usability.
 
-The drag coefficient is calculated as follow:
-     ┍ 0.00218                                         (U <= 1)
-Cd = ├ (0.62 + 1.56 / U) * 0.001                       (1 < U <= 3)
-     ├ 0.00114                                         (3 < U <= 10)
-     ├ (0.49 + 0.065 * U) * 0.001                      (10 < U <= 19)
-     ┖ (1.364 + 0.0234 * U - 0.0002 * U ** 2) * 0.001  (U > 19)
+The drag coefficient is calculated as follow: <br>
+Cd = <br>
+     ┍ 0.00218                                         (U <= 1) <br>
+├ (0.62 + 1.56 / U) * 0.001                       (1 < U <= 3) <br>
+     ├ 0.00114                                         (3 < U <= 10) <br>
+     ├ (0.49 + 0.065 * U) * 0.001                      (10 < U <= 19) <br>
+     ┖ (1.364 + 0.0234 * U - 0.0002 * U ** 2) * 0.001  (U > 19) <br>
 
 ---
 
