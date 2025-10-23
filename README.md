@@ -5,15 +5,6 @@ Building upon **Ramkrushn Patel’s MATLAB code**, this version refines the **dr
 
 The drag coefficient is calculated as follows: <br>
 
-|Cd| Wind Speed |
-|---|---|
-| 0.00218 | (U <= 1) |
-| (0.62 + 1.56 / U) * 0.001|(1 < U <= 3)|
-| 0.00114|(3 < U <= 10)|
-| (0.49 + 0.065 * U) * 0.001|(10 < U <= 19)|
-| (1.364 + 0.0234 * U - 0.0002 * U ** 2) * 0.001 |(U > 19)|
-
-
 <!-- $$ 
 C_d=
 \begin{cases}
