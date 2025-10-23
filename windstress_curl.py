@@ -1,17 +1,19 @@
 import numpy as np
+
 from windstress import ra_windstr
 
-def ra_windstrcurl(lat, lon, u, v):
+
+def ra_windstrcurl(lat: np.ndarray, lon: np.ndarray, u: np.ndarray, v: np.ndarray) -> np.ndarray:
     """
     A Python function to compute wind stress curl using finite difference method.
     Adapted from the original work (MATLAB) by Ramkrushn Patel.
     Adapted for public release by: Qin Duan (duanqin23@mails.ucas.ac.cn)
-    Requires use with ra_windstr.py
+    Requires use with func `ra_windstr`
 
     Usage
     ----------
     curlZ = ra_windstrcurl(lat,lon,u,v)
-    
+
     Parameters
     ----------
     lat : 1D numpy array
@@ -29,11 +31,25 @@ def ra_windstrcurl(lat, lon, u, v):
         Wind stress curl [N/m^3].
     """
 
-    if u.shape != v.shape:
-        raise ValueError("u and v must have the same shape")
+    if isinstance(u, np.ndarray):
+        raise TypeError("u should be np.ndarray")
+    if isinstance(v, np.ndarray):
+        raise TypeError("v should be np.ndarray")
+    if isinstance(lon, np.ndarray):
+        raise TypeError("lon should be np.ndarray")
+    if isinstance(lat, np.ndarray):
+        raise TypeError("lat should be np.ndarray")
+    if lat.ndim != 1 or lon.ndim != 1:
+        raise ValueError(f"the dimension of lat/lon should be 1 but got {lat.ndim}/{lat.ndim}")
+    if u.ndim != 2 or v.ndim != 2:
+        raise ValueError(f"the dimension of u/v should be 2 but got {u.ndim}/{v.ndim}")
+    if u.shape[0] != lat.size or u.shape[1] != lon.size:
+        raise ValueError(f"the shape of u shoule be ({lat.size}, {lon.size}) but got {u.shape}")
+    if v.shape[0] != lat.size or v.shape[1] != lon.size:
+        raise ValueError(f"the shape of v shoule be ({lat.size}, {lon.size}) but got {v.shape}")
 
     rad = np.pi / 180.0
-    lt, ln = u.shape
+    latsize, lonsize = u.shape
 
     # wind stresses
     Tx, Ty = ra_windstr(u, v)
@@ -43,38 +59,37 @@ def ra_windstrcurl(lat, lon, u, v):
     if not np.allclose(a, a[0]):
         raise ValueError("Latitude difference is not consistent")
     dlat = a[0]
-    deltay = dlat * 111176.0  # [m]
+    dy = dlat * 111_176.0  # [m]
 
     # longitude distance in meters for each grid
-    long = np.zeros((lt, ln))
-    for ii in range(lt):
-        long[ii, :] = lon * 111176.0 * np.cos(lat[ii] * rad)
+    dx = np.zeros((latsize, lonsize))
+    for ii in range(latsize):
+        dx[ii, :] = lon * 111_176.0 * np.cos(np.deg2rad(lat[ii]))
         # alternatively: lon * 6378137.0 * rad * cos(lat[ii] * rad)
 
-    curlZ = np.full((lt, ln), np.nan)
+    curlZ = np.full((latsize, lonsize), np.nan)
 
     # central difference
-    for ii in range(1, lt - 1):
-        for jj in range(1, ln - 1):
-            curlZ[ii, jj] = (Ty[ii, jj + 1] - Ty[ii, jj - 1]) / (2 * (long[ii, jj + 1] - long[ii, jj - 1])) \
-                          - (Tx[ii + 1, jj] - Tx[ii - 1, jj]) / (2 * deltay)
+    curlZ[1:-1, 1:-1] = (Ty[1:-1, 2:] - Ty[1:-1, :-2]) / (2 * (dx[1:-1, 2:] - dx[1:-1, :-2])) - (
+        Tx[2:, 1:-1] - Tx[:-2, 1:-1]
+    ) / (2 * dy)
 
     # forward difference at top/left boundaries
-    for jj in range(ln - 1):
-        curlZ[0, jj] = (Ty[0, jj + 1] - Ty[0, jj]) / (long[0, jj + 1] - long[0, jj]) \
-                     - (Tx[1, jj] - Tx[0, jj]) / deltay
-    for ii in range(lt - 1):
-        curlZ[ii, 0] = (Ty[ii, 1] - Ty[ii, 0]) / (long[ii, 1] - long[ii, 0]) \
-                     - (Tx[ii + 1, 0] - Tx[ii, 0]) / deltay
+    curlZ[0, :-1] = (Ty[0, 1:] - Ty[0, :-1]) / (dx[0, 1:] - dx[0, :-1]) - (
+        Tx[1, :-1] - Tx[0, :-1]
+    ) / dy
+    curlZ[:-1, 0] = (Ty[:-1, 1] - Ty[:-1, 0]) / (dx[:-1, 1] - dx[:-1, 0]) - (
+        Tx[1:, 0] - Tx[:-1, 0]
+    ) / dy
     curlZ[0, -1] = curlZ[0, -2]
 
     # backward difference at bottom/right boundaries
-    for ii in range(1, lt):
-        curlZ[ii, -1] = (Ty[ii, -1] - Ty[ii, -2]) / (long[ii, -1] - long[ii, -2]) \
-                      - (Tx[ii, -1] - Tx[ii - 1, -1]) / deltay
-    for jj in range(1, ln - 1):
-        curlZ[-1, jj] = (Ty[-1, jj] - Ty[-1, jj - 1]) / (long[-1, jj] - long[-1, jj - 1]) \
-                      - (Tx[-1, jj] - Tx[-2, jj]) / deltay
+    curlZ[1:, -1] = (Ty[1:, -1] - Ty[1:, -2]) / (dx[1:, -1] - dx[1:, -2]) - (
+        Tx[1:, -1] - Tx[:-1, -1]
+    )
+    curlZ[-1, 1:-1] = (Ty[-1, 1:-1] - Ty[-1, :-2]) / (dx[-1, 1:-1] - dx[-1, :-2]) - (
+        Tx[-1, 1:-1] - Tx[-2, 1:-1]
+    ) / dy
     curlZ[-1, 0] = curlZ[-1, -2]
 
     return curlZ
