@@ -31,13 +31,13 @@ def ra_windstrcurl(lat: np.ndarray, lon: np.ndarray, u: np.ndarray, v: np.ndarra
         Wind stress curl [N/m^3].
     """
 
-    if isinstance(u, np.ndarray):
+    if not isinstance(u, np.ndarray):
         raise TypeError("u should be np.ndarray")
-    if isinstance(v, np.ndarray):
+    if not isinstance(v, np.ndarray):
         raise TypeError("v should be np.ndarray")
-    if isinstance(lon, np.ndarray):
+    if not isinstance(lon, np.ndarray):
         raise TypeError("lon should be np.ndarray")
-    if isinstance(lat, np.ndarray):
+    if not isinstance(lat, np.ndarray):
         raise TypeError("lat should be np.ndarray")
     if lat.ndim != 1 or lon.ndim != 1:
         raise ValueError(f"the dimension of lat/lon should be 1 but got {lat.ndim}/{lat.ndim}")
@@ -86,7 +86,7 @@ def ra_windstrcurl(lat: np.ndarray, lon: np.ndarray, u: np.ndarray, v: np.ndarra
     # backward difference at bottom/right boundaries
     curlZ[1:, -1] = (Ty[1:, -1] - Ty[1:, -2]) / (dx[1:, -1] - dx[1:, -2]) - (
         Tx[1:, -1] - Tx[:-1, -1]
-    )
+    ) / dy
     curlZ[-1, 1:-1] = (Ty[-1, 1:-1] - Ty[-1, :-2]) / (dx[-1, 1:-1] - dx[-1, :-2]) - (
         Tx[-1, 1:-1] - Tx[-2, 1:-1]
     ) / dy

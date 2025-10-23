@@ -39,9 +39,9 @@ def ra_windstr(u: np.ndarray, v: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
 
     """
 
-    if isinstance(u, np.ndarray):
+    if not isinstance(u, np.ndarray):
         raise TypeError("u should be np.ndarray")
-    if isinstance(v, np.ndarray):
+    if not isinstance(v, np.ndarray):
         raise TypeError("v should be np.ndarray")
 
     if u.shape != v.shape:
